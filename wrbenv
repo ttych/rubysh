@@ -1,0 +1,54 @@
+#!/bin/sh
+# -*- mode: sh -*-
+
+# set -x
+
+RBENV_ROOT=
+
+
+wrbenv_help()
+{
+    cat <<EOF
+Usage is :
+      $0 [-h] [-D] <action> <action_parameters>
+
+with action in :
+     list
+     install
+     update
+EOF
+}
+
+wrbenv()
+{
+    wrbenv=
+    wrbenv__action=
+    while getopts :hD opt; do
+        case $opt in
+            h) wrbenv_help
+               exit 0
+               ;;
+            D) set -x ;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    case $1 in
+        list|install|update)
+            wrbenv__action="wrbenv_$1"
+            shift
+            $wrbenv__action "$@"
+            ;;
+        *)
+            echo >&2 "unknown action \"$1\""
+            wrbenv_help
+            exit 1
+            ;;
+    esac
+}
+
+case "$0" in
+    */wrbenv)
+        wrbenv "$@"
+        ;;
+esac
