@@ -3,7 +3,11 @@
 
 # set -x
 
-RBENV_ROOT=
+
+RBENV_ORGA="${RBENV_ORGA:-https://github.com/rbenv}"
+RBENV_REPO="${RBENV_REPO:-rbenv}"
+RBENV_PLUGINS="${RBENV_PLUGINS:-ruby-build rbenv-vars}"
+RBENV_PLUGINS_DEFAULT="${RBENV_PLUGINS:-ruby-build rbenv-vars}"
 
 
 wrbenv_help()
@@ -17,6 +21,31 @@ with action in :
      install
      update
 EOF
+}
+
+rbenv_root()
+{
+    rbenv_root="${1:-$rbenv_root}"
+    rbenv_root="${rbenv_root:-$RBENV_ROOT}"
+    if [ -n "$HOME_ALT" ]; then
+        rbenv_root="${rbenv_root:-$HOME_ALT/.rbenv}"
+    fi
+    rbenv_root="${rbenv_root:-$HOME/.rbenv}"
+}
+
+wrbenv_info()
+{
+    :
+}
+
+wrbenv_install()
+{
+    :
+}
+
+wrbenv_update()
+{
+    :
 }
 
 wrbenv()
@@ -34,9 +63,9 @@ wrbenv()
     shift $(($OPTIND - 1))
 
     case $1 in
-        list|install|update)
-            wrbenv__action="wrbenv_$1"
-            shift
+        info|install|update|help|"")
+            wrbenv__action="wrbenv_${1:-info}"
+            [ $# -gt 1 ] && shift
             $wrbenv__action "$@"
             ;;
         *)
