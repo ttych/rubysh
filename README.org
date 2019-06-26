@@ -1,0 +1,22 @@
+* contents
+
+** wrbenv
+
+   This is a rbenv wrapper to :
+   - display info on current installation
+   - install rbenv in the choosen location
+   - install basic plugins
+   - update installed rbenv and installed plugins
+
+   #+BEGIN_SRC shell
+	 % wrbenv -h
+	 Usage is :
+		   ./bin/wrbenv [-h] [-D] <action> <action_parameters>
+
+	 with action in :
+		  help
+		  info
+		  install
+		  update
+		  init
+   #+END_SRC
