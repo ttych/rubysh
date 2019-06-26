@@ -6,8 +6,7 @@
 
 RBENV_ORGA="${RBENV_ORGA:-https://github.com/rbenv}"
 RBENV_REPO="${RBENV_REPO:-rbenv}"
-RBENV_PLUGINS="${RBENV_PLUGINS:-ruby-build rbenv-vars}"
-RBENV_PLUGINS_DEFAULT="${RBENV_PLUGINS:-ruby-build rbenv-vars}"
+RBENV_PLUGINS="${RBENV_PLUGINS:-ruby-build rbenv-vars rbenv-each rbenv-default-gems}"
 
 
 wrbenv_help()
@@ -35,16 +34,59 @@ rbenv_root()
 
 wrbenv_info()
 {
-    :
+    rbenv_root "$1"
+    [ -d "$rbenv_root" ] || {
+        echo "no rbenv distribution found at \"$rbenv_root\""
+        return 0
+    }
+
+    [ -x "$rbenv_root/bin/rbenv" ] || {
+        echo "incomplete rbenv distribution found at \"$rbenv_root\""
+        return 1
+    }
+    cat <<EOF
+$(wrbenv_info_rbenv)
+
+$(wrbenv_info_plugins)
+
+$(wrbenv_info_ruby)
+EOF
 }
+
+wrbenv_info_rbenv()
+{
+    echo '# rbenv distribution found:'
+    echo "RBENV_ROOT=\"$rbenv_root\""
+}
+
+wrbenv_info_ruby()
+{
+    echo '# installed ruby versions:'
+    RBENV_ROOT="$rbenv_root" rbenv versions
+}
+
+wrbenv_info_plugins()
+(
+    echo '# install rbenv plugins:'
+    cd "$rbenv_root/plugins" || return 0
+    for d in */; do
+        (
+            cd "$d"
+            remote=$(git remote get-url origin)
+            echo "${d%/}: $remote"
+        )
+    done
+)
 
 wrbenv_install()
 {
+    rbenv_root "$1"
     :
 }
 
 wrbenv_update()
 {
+    rbenv_root "$1"
     :
 }
 
@@ -65,7 +107,7 @@ wrbenv()
     case $1 in
         info|install|update|help|"")
             wrbenv__action="wrbenv_${1:-info}"
-            [ $# -gt 1 ] && shift
+            [ $# -gt 0 ] && shift
             $wrbenv__action "$@"
             ;;
         *)
