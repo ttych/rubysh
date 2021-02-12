@@ -150,6 +150,51 @@ EOF
 
 
 # ### chruby
+
+CHRUBY_ROOT="${CHRUBY_ROOT:-$HOME/.chruby}"
+CHRUBY_ORGA="${CHRUBY_ORGA:-https://github.com/postmodern}"
+CHRUBY_REPO="${CHRUBY_REPO:-chruby}"
+
+__rubyenv__chruby__install_or_update()
+{
+    FIXME
+}
+
+__rubyenv__chruby__status()
+{
+    [ -d "$CHRUBY_ROOT" ] &&
+        [ -x "$CHRUBY_ROOT/share/chruby/chruby.sh" ] &&
+        return 0
+
+    return 1
+}
+
+__rubyenv__chruby__list()
+{
+    echo "chruby > $CHRUBY_ROOT > `__rubyenv__chruby__status && echo installed || echo missing`"
+}
+
+__rubyenv__chruby__install()
+{
+    __rubyenv__chruby__status ||
+        __rubyenv__chruby__install_or_update
+}
+
+__rubyenv__chruby__update()
+{
+    __rubyenv__chruby__install_or_update
+}
+
+__rubyenv__chruby__init()
+{
+    cat <<EOF
+CHRUBY_ROOT="$CHRUBY_ROOT"
+export CHRUBY_ROOT
+. \$CHRUBY_ROOT/share/chruby/chruby.sh
+EOF
+}
+
+
 # **** TODO switch / test chruby
 
 # ### ruby-install
