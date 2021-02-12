@@ -97,7 +97,10 @@ __rubyenv__rbenv__update()
 
 __rubyenv__rbenv__init()
 {
+    __rubyenv__rbenv__status || return 0
+
     cat <<EOF
+# rbenv
 export RBENV_ROOT="$RBENV_ROOT"
 export PATH="$RBENV_ROOT/bin:\$PATH"
 eval "\$(rbenv init -)"
@@ -143,7 +146,10 @@ __rubyenv__ruby_build__update()
 
 __rubyenv__ruby_build__init()
 {
+    __rubyenv__ruby_build__status || return 0
+
     cat <<EOF
+# ruby-build
 export PATH="$RUBY_BUILD_ROOT:\$PATH"
 EOF
 }
@@ -187,7 +193,10 @@ __rubyenv__chruby__update()
 
 __rubyenv__chruby__init()
 {
+    __rubyenv__chruby__status || return 0
+
     cat <<EOF
+# chruby
 CHRUBY_ROOT="$CHRUBY_ROOT"
 export CHRUBY_ROOT
 . \$CHRUBY_ROOT/share/chruby/chruby.sh
@@ -195,11 +204,51 @@ EOF
 }
 
 
-# **** TODO switch / test chruby
-
 # ### ruby-install
-# **** ruby-install https://github.com/postmodern/ruby-install#readme
 
+RUBY_INSTALL_ROOT="${RUBY_INSTALL_ROOT:-$HOME/tools/ruby-install}"
+RUBY_INSTALL_ORGA="${RUBY_INSTALL_ORGA:-https://github.com/postmodern}"
+RUBY_INSTALL_REPO="${RUBY_INSTALL_REPO:-ruby-install}"
+
+__rubyenv__ruby_install__install_or_update()
+{
+    git_clone_or_update "${RUBY_INSTALL_ORGA}/${RUBY_INSTALL_REPO}.git" "${RUBY_INSTALL_ROOT}" || return 1
+}
+
+__rubyenv__ruby_install__status()
+{
+    [ -d "$RUBY_INSTALL_ROOT" ] &&
+        [ -x "$RUBY_INSTALL_ROOT/bin/ruby-install" ] &&
+        return 0
+
+    return 1
+}
+
+__rubyenv__ruby_install__list()
+{
+    echo "ruby-install > $RUBY_INSTALL_ROOT > `__rubyenv__ruby_install__status && echo installed || echo missing`"
+}
+
+__rubyenv__ruby_install__install()
+{
+    __rubyenv__ruby_install__status ||
+        __rubyenv__ruby_install__install_or_update
+}
+
+__rubyenv__ruby_install__update ()
+{
+    __rubyenv__ruby_install__install_or_update
+}
+
+__rubyenv__ruby_install__init()
+{
+    __rubyenv__ruby_install__status || return 0
+
+    cat <<EOF
+# ruby-install
+export PATH="$RUBY_INSTALL_ROOT:\$PATH"
+EOF
+}
 
 
 # ### rubyenv
