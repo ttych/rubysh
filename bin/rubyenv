@@ -163,7 +163,7 @@ CHRUBY_REPO="${CHRUBY_REPO:-chruby}"
 
 __rubyenv__chruby__install_or_update()
 {
-    FIXME
+    git_clone_or_update "${CHRUBY_ORGA}/${CHRUBY_REPO}.git" "${CHRUBY_ROOT}" || return 1
 }
 
 __rubyenv__chruby__status()
