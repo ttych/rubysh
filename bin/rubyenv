@@ -169,7 +169,7 @@ __rubyenv__chruby__install_or_update()
 __rubyenv__chruby__status()
 {
     [ -d "$CHRUBY_ROOT" ] &&
-        [ -x "$CHRUBY_ROOT/share/chruby/chruby.sh" ] &&
+        [ -r "$CHRUBY_ROOT/share/chruby/chruby.sh" ] &&
         return 0
 
     return 1
@@ -200,6 +200,7 @@ __rubyenv__chruby__init()
 CHRUBY_ROOT="$CHRUBY_ROOT"
 export CHRUBY_ROOT
 . \$CHRUBY_ROOT/share/chruby/chruby.sh
+. \$CHRUBY_ROOT/share/chruby/auto.sh
 EOF
 }
 
