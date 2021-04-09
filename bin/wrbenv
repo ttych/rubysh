@@ -17,6 +17,15 @@ git_clone()
 
 git_update()
 {
+    if [ -n "$GIT_UPDATE_FORCE" ]; then
+        git_update_force "$@"
+    else
+        git_update_simple "$@"
+    fi
+}
+
+git_update_simple()
+{
     if git rev-parse @{u} >/dev/null 2>&1; then
         git reset --quiet --hard HEAD &&
             git pull --quiet --no-rebase --ff-only
@@ -24,6 +33,23 @@ git_update()
     git submodule --quiet update --recursive
 }
 
+git_update_force()
+{
+    if git rev-parse @{u} >/dev/null 2>&1; then
+        git_branch_cur=`git rev-parse --abbrev-ref HEAD`
+        git_rem=`git branch --format '%(upstream:remotename)'`
+        git_branch_rem=`git branch --format '%(upstream)'`
+        git_branch_rem="${git_branch_rem#*/$git_rem/}"
+
+        git branch -d -r "$git_rem/$git_branch_rem"
+        git fetch "$git_rem" "$git_branch_rem"
+
+        git checkout -f "$git_rem/$git_branch_rem"
+        git branch -f "$git_branch_cur" "$git_rem/$git_branch_rem"
+        git checkout -f  "$git_branch_cur"
+    fi
+    git submodule --quiet update --recursive
+}
 
 RBENV_ORGA="${RBENV_ORGA:-https://github.com/rbenv}"
 RBENV_REPO="${RBENV_REPO:-rbenv}"
@@ -41,6 +67,7 @@ with action in :
      info
      install
      update
+     fupdate
      init
 EOF
 }
@@ -164,6 +191,13 @@ wrbenv_update_plugins()
     done
 )
 
+wrbenv_fupdate()
+{
+    GIT_UPDATE_FORCE=1
+
+    wrbenv_update "$@"
+}
+
 wrbenv_init()
 {
     rbenv_root "$1"
@@ -186,7 +220,7 @@ wrbenv()
     shift $(($OPTIND - 1))
 
     case $1 in
-        help|info|install|update|init|"")
+        help|info|install|update|fupdate|init|"")
             wrbenv__action="wrbenv_${1:-info}"
             [ $# -gt 0 ] && shift
             $wrbenv__action "$@"
